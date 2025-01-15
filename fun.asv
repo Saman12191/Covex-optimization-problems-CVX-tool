@@ -1,0 +1,3 @@
+function f=fun(x)
+global A p n
+    f=x'*log(x);

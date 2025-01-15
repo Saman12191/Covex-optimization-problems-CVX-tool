@@ -1,0 +1,65 @@
+function [xstar,fstar,ngfstar]=newton_method(x)
+global A  alpha beta eta p n
+X(:,1)=x;%starting point
+f(1)=feval(@fun,x);
+gf=feval(@gradf,x);
+H=feval(@hesf,x);
+Q=[H  A';A zeros(p,p)] ;
+v=[gf; zeros(p,1)];
+e=-Q\v;
+d=e(1:n);%L'd=p  ==>  LL'd=-gf ==> Hd=-gf ==> d=-H^-1*gf is newton direction
+lambda=sqrt(d'*H*d);
+k=1;
+while lambda^2/2>eta
+    t=1;
+    while checkfeasible(x+t*d)==0
+        t=beta*t;
+    end
+    f1=feval(@fun,x+t*d);
+    while f1>f+alpha*t*gf'*d
+        t=beta*t;
+        f1=feval(@fun,x+t*d);
+    end
+    x=x+t*d;
+    k=k+1;
+    f=f1;
+    F(k)=f1;
+    X(:,k)=x;
+    T(k-1)=t;
+    gf=feval(@gradf,x);
+    H=feval(@hesf,x);
+    Q=[H A';A zeros(p,p)] ;
+    v=[gf; zeros(p,1)]
+    e=-Q\v;
+    d=e(1);%L'd=p  ==>  LL'd=-gf ==> Hd=-gf ==> d=-H^-1*gf is newton direction
+    lambda=sqrt(d'*H*d);
+
+    %norm(gf)
+end
+T(k)=0;
+K=1:k;
+figure(4)
+plot(K,F, ' m ','LineWidth',1,'MarkerSize',2);%arghavani
+title({'Plot of objective function  versus iteration number: newton method'; ['n=',num2str(n)];['\alpha=',num2str(alpha)];['\beta=',num2str(beta)]})
+axis normal
+xlabel('k=iteration number');
+ylabel('f(x_k)')
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+figure(5)
+plot(K,T, ' b ','LineWidth',1,'MarkerSize',2)
+title({'Plot of  step length versus iteration number: newton method'; ['n=',num2str(n)];['\alpha=',num2str(alpha)];['\beta=',num2str(beta)]})
+axis normal
+xlabel('k=iteration number');
+ylabel('t_k: step length)')
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+figure(6)
+plot(K,log(F-F(k)))
+title({'Plot of log(f-p^*) versus iteration number: newton method'; ['n=',num2str(n)];['\alpha=',num2str(alpha)];['\beta=',num2str(beta)]})
+axis normal
+xlabel('k=iteration number');
+ylabel('log(f(x_k)-p^*)')
+k
+xstar=x;
+fstar=f;
+ngfstar=(norm(gf));
